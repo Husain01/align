@@ -21,16 +21,13 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-const formSchema = z.object({
-  name: z.string().trim().min(1, "Required"),
-  email: z.string().trim().email(),
-  password: z.string().min(8, "Minimum of 8 characters required"),
-});
+import { registerSchema } from "../schemas";
+import { useRegister } from "../api/use-register";
 
 const SignUpCard = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const { mutate } = useRegister();
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -38,8 +35,9 @@ const SignUpCard = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof registerSchema>) => {
     console.log(values);
+    mutate({json: values})
   };
 
   return (
@@ -145,7 +143,7 @@ const SignUpCard = () => {
       </div>
       <CardContent className="p-7 flex items-center justify-center gap-y-4">
         <p>
-          Already have an account?{" "} 
+          Already have an account?{" "}
           <Link href="/sign-in">
             <span className="text-cyan-700">Sign In</span>
           </Link>
