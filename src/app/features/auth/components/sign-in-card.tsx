@@ -1,3 +1,5 @@
+"use client";
+
 import { DottedSeparator } from "@/components/dotted-separator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,23 +18,22 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import Link from "next/link";
-
-const formSchema = z.object({
-  email: z.string().trim().email(),
-  password: z.string().min(1, "Required"),
-});
+import { loginSchema } from "../schemas";
+import { useLogin } from "../api/use-login";
 
 const SignInCard = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const { mutate, isPending } = useLogin();
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof loginSchema>) => {
     console.log(values);
+    mutate({ json: values });
   };
 
   return (
@@ -78,7 +79,7 @@ const SignInCard = () => {
                 </FormItem>
               )}
             />
-            <Button disabled={false} size="lg" className="w-full">
+            <Button disabled={isPending} size="lg" className="w-full">
               Login
             </Button>
           </form>
@@ -92,7 +93,7 @@ const SignInCard = () => {
           variant={"secondary"}
           className="w-full"
           size="lg"
-          disabled={false}
+          disabled={isPending}
         >
           <FcGoogle className="mr-2 size-5" />
           Login with Google
@@ -101,7 +102,7 @@ const SignInCard = () => {
           variant={"secondary"}
           className="w-full"
           size="lg"
-          disabled={false}
+          disabled={isPending}
         >
           <FaGithub className="mr-2 size-5" />
           Login with Github
